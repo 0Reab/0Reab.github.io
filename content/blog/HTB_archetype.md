@@ -1,6 +1,5 @@
 +++
 date = '2026-05-26T14:40:33+02:00'
-draft = true
 title = 'HTB Archetype'
 +++
 

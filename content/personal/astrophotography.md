@@ -1,6 +1,5 @@
 +++
 date = '2026-05-26T13:32:24+02:00'
-draft = true
 title = 'Astrophotography'
 +++
 

@@ -1,6 +1,5 @@
 +++
 date = '2026-05-25T18:03:42+02:00'
-draft = true
 title = 'File upload to XSS'
 +++
 

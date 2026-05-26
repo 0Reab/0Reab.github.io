@@ -16,13 +16,6 @@
       <description>&lt;h2 id=&#34;preface&#34; class=&#34;mt-8 mb-3 text-xl sm:text-2xl text-white&#34;&gt;&#xD;&#xA;    &lt;span class=&#34;relative inline-block&#34;&gt;&#xD;&#xA;      Preface&#xD;&#xA;      &lt;span&#xD;&#xA;        class=&#34;absolute left-0 -bottom-1 h-px w-0 bg-indigo-400&#34;&gt;&lt;/span&gt;&#xD;&#xA;    &lt;/span&gt;&#xD;&#xA;&lt;/h2&gt;&#xD;&#xA;&lt;p&gt;I approached this box as a boot to root style CTF.&#xA;In this write up I step through my methodology and thought process behind it.&lt;/p&gt;&#xA;&lt;h2 id=&#34;active-reconnaissance&#34; class=&#34;mt-8 mb-3 text-xl sm:text-2xl text-white&#34;&gt;&#xD;&#xA;    &lt;span class=&#34;relative inline-block&#34;&gt;&#xD;&#xA;      Active reconnaissance&#xD;&#xA;      &lt;span&#xD;&#xA;        class=&#34;absolute left-0 -bottom-1 h-px w-0 bg-indigo-400&#34;&gt;&lt;/span&gt;&#xD;&#xA;    &lt;/span&gt;&#xD;&#xA;&lt;/h2&gt;&#xD;&#xA;&lt;p&gt;After connecting to the VPN and waiting for the box server to start responding to my pings, it&amp;rsquo;s ready for some enumeration.&#xA;To start off, a fast Nmap &lt;em&gt;SYN&lt;/em&gt; scan across the whole port range.&#xA;&lt;em&gt;arch is set as hostname for target IP address in /etc/hosts&lt;/em&gt;&lt;/p&gt;</description>
     </item>
     <item>
-      <title>Arduino rubber ducky</title>
-      <link>http://localhost:1313/blog/arduino_rubber_ducky/</link>
-      <pubDate>Tue, 26 May 2026 13:48:50 +0200</pubDate>
-      <guid>http://localhost:1313/blog/arduino_rubber_ducky/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>File upload to XSS</title>
       <link>http://localhost:1313/blog/xss_file_upload/</link>
       <pubDate>Mon, 25 May 2026 18:03:42 +0200</pubDate>
