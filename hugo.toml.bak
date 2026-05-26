@@ -1,4 +1,4 @@
-baseURL = 'https://0reab.github.io'
+baseURL = 'https://example.com'
 languageCode = 'en-us'
 title = "Reab"
 theme = "enervoid"
@@ -20,15 +20,20 @@ theme = "enervoid"
     weight = 30
 
 [params]
-  avatar = "https://avatars.githubusercontent.com/u/122540000?v=4"
-  customCSS = ["css/custom.css"]
+  avatar = "https://picsum.photos/200"
 
   [[params.socials]]
       link = "https://github.com/0Reab"
       icon = "devicon-github-original"
+  [[params.socials]]
+      link = "https://twitter.com/yourx"
+      icon = "devicon-twitter-original"
    [[params.socials]]
       link = "https://www.linkedin.com/in/mihajlo-francic-3650682bb"
       icon = "devicon-linkedin-plain"
+    [[params.socials]]
+      link = "https://itch.io/profile/youritch"
+      icon = "fa-brands fa-itch-io" 
 
 [markup]
   [markup.goldmark]

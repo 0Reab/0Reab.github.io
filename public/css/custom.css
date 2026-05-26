@@ -1,0 +1,12 @@
+div {
+    font-size: 15px !important;
+    color: rgb(200, 200, 200);
+}
+
+em {
+    color:rgb(116, 116, 160);
+}
+
+strong {
+    color: greenyellow;
+}

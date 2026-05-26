@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Reab</title>
-    <link>http://localhost:1313/</link>
-    <description>Recent content on Reab</description>
+    <title>Blogs on Reab</title>
+    <link>http://localhost:1313/blog/</link>
+    <description>Recent content in Blogs on Reab</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 26 May 2026 14:40:33 +0200</lastBuildDate>
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>HTB Archetype</title>
       <link>http://localhost:1313/blog/htb_archetype/</link>
@@ -23,13 +23,6 @@
       <description></description>
     </item>
     <item>
-      <title>Astrophotography</title>
-      <link>http://localhost:1313/personal/astrophotography/</link>
-      <pubDate>Tue, 26 May 2026 13:32:24 +0200</pubDate>
-      <guid>http://localhost:1313/personal/astrophotography/</guid>
-      <description>&lt;h2 id=&#34;cygnus-butterfly-nebula&#34; class=&#34;mt-8 mb-3 text-xl sm:text-2xl text-white&#34;&gt;&#xD;&#xA;    &lt;span class=&#34;relative inline-block&#34;&gt;&#xD;&#xA;      Cygnus Butterfly nebula&#xD;&#xA;      &lt;span&#xD;&#xA;        class=&#34;absolute left-0 -bottom-1 h-px w-0 bg-indigo-400&#34;&gt;&lt;/span&gt;&#xD;&#xA;    &lt;/span&gt;&#xD;&#xA;&lt;/h2&gt;&#xD;&#xA;&lt;p&gt;&lt;em&gt;IC 1318 - narrowband (4h10min)&lt;/em&gt;&#xA;&lt;img class=&#34;mx-auto my-6 rounded-md border border-gray-800/70 bg-black/20&#34; src=&#34;https://live.staticflickr.com/65535/54228792835_c7f9f21a9d_h.jpg&#34; loading=&#34;lazy&#34; decoding=&#34;async&#34;&#xD;&#xA;  alt=&#34;Cygnus butterfly&#34;&gt;&lt;/p&gt;&#xA;&lt;h2 id=&#34;cygnus-wall-nebula&#34; class=&#34;mt-8 mb-3 text-xl sm:text-2xl text-white&#34;&gt;&#xD;&#xA;    &lt;span class=&#34;relative inline-block&#34;&gt;&#xD;&#xA;      Cygnus wall nebula&#xD;&#xA;      &lt;span&#xD;&#xA;        class=&#34;absolute left-0 -bottom-1 h-px w-0 bg-indigo-400&#34;&gt;&lt;/span&gt;&#xD;&#xA;    &lt;/span&gt;&#xD;&#xA;&lt;/h2&gt;&#xD;&#xA;&lt;p&gt;&lt;em&gt;NGC 7000 - narrowband (/)&lt;/em&gt;&#xA;&lt;img class=&#34;mx-auto my-6 rounded-md border border-gray-800/70 bg-black/20&#34; src=&#34;https://live.staticflickr.com/65535/54228403801_6c895399ff_h.jpg&#34; loading=&#34;lazy&#34; decoding=&#34;async&#34;&#xD;&#xA;  alt=&#34;Cygnus butterfly&#34;&gt;&lt;/p&gt;&#xA;&lt;h2 id=&#34;andromeda-galaxy&#34; class=&#34;mt-8 mb-3 text-xl sm:text-2xl text-white&#34;&gt;&#xD;&#xA;    &lt;span class=&#34;relative inline-block&#34;&gt;&#xD;&#xA;      Andromeda galaxy&#xD;&#xA;      &lt;span&#xD;&#xA;        class=&#34;absolute left-0 -bottom-1 h-px w-0 bg-indigo-400&#34;&gt;&lt;/span&gt;&#xD;&#xA;    &lt;/span&gt;&#xD;&#xA;&lt;/h2&gt;&#xD;&#xA;&lt;p&gt;&lt;em&gt;M31 - narrowband (2h30min) &amp;amp; broadband (3h)&lt;/em&gt;&#xA;&lt;img class=&#34;mx-auto my-6 rounded-md border border-gray-800/70 bg-black/20&#34; src=&#34;https://live.staticflickr.com/65535/54227458682_9de5209780_h.jpg&#34; loading=&#34;lazy&#34; decoding=&#34;async&#34;&#xD;&#xA;  alt=&#34;Cygnus butterfly&#34;&gt;&lt;/p&gt;</description>
-    </item>
-    <item>
       <title>File upload to XSS</title>
       <link>http://localhost:1313/blog/xss_file_upload/</link>
       <pubDate>Mon, 25 May 2026 18:03:42 +0200</pubDate>
@@ -42,13 +35,6 @@
       <pubDate>Mon, 25 May 2026 17:20:57 +0200</pubDate>
       <guid>http://localhost:1313/blog/intigriti_ctf_0526/</guid>
       <description>&lt;h2 id=&#34;task&#34; class=&#34;mt-8 mb-3 text-xl sm:text-2xl text-white&#34;&gt;&#xD;&#xA;    &lt;span class=&#34;relative inline-block&#34;&gt;&#xD;&#xA;      Task&#xD;&#xA;      &lt;span&#xD;&#xA;        class=&#34;absolute left-0 -bottom-1 h-px w-0 bg-indigo-400&#34;&gt;&lt;/span&gt;&#xD;&#xA;    &lt;/span&gt;&#xD;&#xA;&lt;/h2&gt;&#xD;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Leverage XSS vulnerability on the challenge page.&lt;/li&gt;&#xA;&lt;li&gt;Should not be self XSS or related MITM attacks.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;initial-observations&#34; class=&#34;mt-8 mb-3 text-xl sm:text-2xl text-white&#34;&gt;&#xD;&#xA;    &lt;span class=&#34;relative inline-block&#34;&gt;&#xD;&#xA;      Initial observations&#xD;&#xA;      &lt;span&#xD;&#xA;        class=&#34;absolute left-0 -bottom-1 h-px w-0 bg-indigo-400&#34;&gt;&lt;/span&gt;&#xD;&#xA;    &lt;/span&gt;&#xD;&#xA;&lt;/h2&gt;&#xD;&#xA;&lt;p&gt;After making an user account and walking the application I found couple POST endpoints which store user input and render it in other places.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;/api/register&lt;/li&gt;&#xA;&lt;li&gt;/api/login&lt;/li&gt;&#xA;&lt;li&gt;/api/testimonials&lt;/li&gt;&#xA;&lt;li&gt;/api/profile&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;One more note, the session cookie was not HttpOnly, meaning a cookie can be exfiltrated via XSS.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Test</title>
-      <link>http://localhost:1313/projects/test/</link>
-      <pubDate>Mon, 25 May 2026 16:37:39 +0200</pubDate>
-      <guid>http://localhost:1313/projects/test/</guid>
-      <description>&lt;p&gt;Hello world!&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

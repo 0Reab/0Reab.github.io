@@ -2,9 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/categories/</loc>
+    <loc>http://localhost:1313/blog/</loc>
+    <lastmod>2026-05-25T18:03:42+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/blog/xss_file_upload/</loc>
+    <lastmod>2026-05-25T18:03:42+02:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/</loc>
+    <lastmod>2026-05-25T18:03:42+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/blog/intigriti_ctf_0526/</loc>
+    <lastmod>2026-05-25T17:20:57+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/projects/</loc>
+    <lastmod>2026-05-25T16:37:39+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/projects/test/</loc>
+    <lastmod>2026-05-25T16:37:39+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/personal/</loc>
+    <lastmod>2026-05-25T16:37:26+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/personal/test/</loc>
+    <lastmod>2026-05-25T16:37:26+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/blog/test/</loc>
+    <lastmod>2026-05-25T15:49:39+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/categories/</loc>
   </url><url>
     <loc>http://localhost:1313/tags/</loc>
   </url>
