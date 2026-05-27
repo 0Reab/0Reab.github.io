@@ -34,11 +34,11 @@ This is an ideal scenario, if the server does not accepts this try tampering wit
 form **content type** or **filename extension**.
 Common bypasses are using %00 **null byte** or semicolon, newline, CRLF...
 
-## Testing Javascript limits
+## Testing JavaScript limits
 If the HTML is rendered properly and accessible by other authenticated users.\
-We can then test a simple Javascript payload for proof of concept.
+We can then test a simple JavaScript payload for proof of concept.
 
-You should also montitor the browser dev-tools console for errors.
+You should also monitor the browser dev-tools console for errors.
 
 ```html
 <script>fetch('https://target.com/api/user/current/')</script>
@@ -50,7 +50,7 @@ Ideally for maximum impact grabbing the cookies would be the best.
 \
 But more often than not, the session cookie will be HttpOnly, meaning we can't steal it.
 
-There is a decent chance other cookies are up for grabs, possibly for API interraction or other sensitive mechanisms.
+There is a decent chance other cookies are up for grabs, possibly for API interaction or other sensitive mechanisms.
 Those other cookies could lead to a full session compromise.
 
 ### Cookie stealing
