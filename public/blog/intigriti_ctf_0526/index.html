@@ -443,7 +443,7 @@
   <ul>
     <li><a href="#task">Task</a></li>
     <li><a href="#initial-observations">Initial observations</a></li>
-    <li><a href="#endpointapiprofilehas-insufficient-protection">Endpoint <strong>/api/profile</strong> has insufficient protection.</a></li>
+    <li><a href="#testing-html-tags">Testing HTML tags</a></li>
     <li><a href="#filter-bypass-method">Filter bypass method</a></li>
     <li><a href="#session-takeover-payload">Session takeover payload</a></li>
     <li><a href="#side-note">Side note</a></li>
@@ -477,7 +477,7 @@
   <ul>
     <li><a href="#task">Task</a></li>
     <li><a href="#initial-observations">Initial observations</a></li>
-    <li><a href="#endpointapiprofilehas-insufficient-protection">Endpoint <strong>/api/profile</strong> has insufficient protection.</a></li>
+    <li><a href="#testing-html-tags">Testing HTML tags</a></li>
     <li><a href="#filter-bypass-method">Filter bypass method</a></li>
     <li><a href="#session-takeover-payload">Session takeover payload</a></li>
     <li><a href="#side-note">Side note</a></li>
@@ -508,18 +508,18 @@
         class="absolute left-0 -bottom-1 h-px w-0 bg-indigo-400"></span>
     </span>
 </h2>
-<p>After making an user account and walking the application I found couple POST endpoints which store user input and render it in other places.</p>
+<p>After making a user account and walking the application I found couple POST endpoints which store user input and render it in other places.</p>
 <ul>
 <li>/api/register</li>
 <li>/api/login</li>
 <li>/api/testimonials</li>
 <li>/api/profile</li>
 </ul>
-<p>One more note, the session cookie was not HttpOnly, meaning a cookie can be exfiltrated via XSS.</p>
-<p>Ignoring the fact that that was beyond the scope of this CTF, with the main flag being just the XSS alert, and the cookie value was just an incrementing integer.</p>
+<p>Also, the session cookie was not HttpOnly.</p>
+<p>And it&rsquo;s exfiltration was beyond the scope of this CTF since the main flag was just an XSS alert, and the cookie value was just an incrementing integer anyway.</p>
+<p>But I wanted to push myself and prove bug impact with the stolen cookie regardless of the flag.</p>
 <p><br>
-Attempting basic XSS would result in this error.</p>
-<p>Character blacklist defense also included strings like <em>script, onerror, onload, javascript</em>.</p>
+Attempting basic XSS <strong><code>&lt;script&gt;alert(1)&lt;/script&gt;</code></strong> would result in this error.</p>
 <div class="my-7 rounded-sm border border-gray-800/80 bg-black/40 overflow-hidden">
   <div class="flex items-center justify-between px-4 py-2 border-b border-gray-800/70 bg-[#070709]">
     <span class="text-xs uppercase tracking-widest text-gray-500">text</span>
@@ -535,8 +535,18 @@ Attempting basic XSS would result in this error.</p>
   .codewrap pre { padding: 0 !important; overflow: visible !important; }
   .codewrap code { background: transparent !important; border: 0 !important; padding: 0 !important; font-size: 0.95rem; line-height: 1.55; color: rgba(229, 231, 235, 0.92); }
   .codewrap { background: rgba(0,0,0,0.20); }
-</style><p><br>
-At first I tried to just close the HTML tag of the element in which my payloads are rendered.</p>
+</style><p>Character blacklist defense also included strings like <em>script, onerror, onload, javascript</em>&hellip;</p>
+<p><br>
+Many requests later I concluded that the <strong>/api/profile</strong> was the best target.</p>
+<p>Only from that endpoint, name value HTML payload was being rendered unsanitized.</p>
+<h2 id="testing-html-tags" class="mt-8 mb-3 text-xl sm:text-2xl text-white">
+    <span class="relative inline-block">
+      Testing HTML tags
+      <span
+        class="absolute left-0 -bottom-1 h-px w-0 bg-indigo-400"></span>
+    </span>
+</h2>
+<p>At first I tried to just close the HTML tag of the element in which my payloads are rendered.</p>
 <div class="my-7 rounded-sm border border-gray-800/80 bg-black/40 overflow-hidden">
   <div class="flex items-center justify-between px-4 py-2 border-b border-gray-800/70 bg-[#070709]">
     <span class="text-xs uppercase tracking-widest text-gray-500">http</span>
@@ -572,27 +582,21 @@ At first I tried to just close the HTML tag of the element in which my payloads 
   .codewrap pre { padding: 0 !important; overflow: visible !important; }
   .codewrap code { background: transparent !important; border: 0 !important; padding: 0 !important; font-size: 0.95rem; line-height: 1.55; color: rgba(229, 231, 235, 0.92); }
   .codewrap { background: rgba(0,0,0,0.20); }
-</style><p>Now it was time to decide what HTML element will fit this scenario.</p>
+</style><p>The closed div tag was rendering properly, now it was time to decide what HTML element will fit this scenario.</p>
 <p>Main requirements were:</p>
 <ul>
-<li>Not using blacklisted event attributes or HTML tags.</li>
-<li>No user interaction except initial navigation or link click.</li>
+<li>No user interaction for payload execution except initial navigation or link click.</li>
+<li>No blacklisted strings and characters unless obfuscated or encoded.</li>
+<li><em>(or just break the parser somehow)</em></li>
 </ul>
 <p>For this I was searching through the <em><a href="https://portswigger.net/web-security/cross-site-scripting/cheat-sheet">XSS cheat-sheet from port swigger</a></em>.</p>
 <p><br>
-Eventually I settled on hyperlink anchor tag <code>&lt;a&gt;</code>, which allows for <em>onfocus</em> event attribute and can be set to <em>autofocus</em> which fires the Javascript payload for navigation, and having an URL with suffix <em>#testimonials</em> is a way to trigger that focus event.</p>
+Eventually I settled on hyperlink anchor tag <code>&lt;a&gt;</code>, which allows for <em>onfocus</em> event attribute and it can be set to <em>autofocus</em> which fires the Javascript payload basically on load in this combination.
+Here is the basic payload from port swigger for example <em><code>&lt;a onfocus=alert(1) autofocus tabindex=1&gt;</code></em>.</p>
 <p><br>
-So for the start <em><code>test&lt;/div&gt;&lt;a href=x&gt;link&lt;/a&gt;</code></em> was a passing and rendering OK.
+So for the start <em><code>test&lt;/div&gt;&lt;a onfocus=x autofocus tabindex=1&gt;</code></em> was passing through and rendering OK.
 <br>
 Now it was a matter of figuring out an XSS payload that would bypass the shield defense mechanism.</p>
-<h2 id="endpointapiprofilehas-insufficient-protection" class="mt-8 mb-3 text-xl sm:text-2xl text-white">
-    <span class="relative inline-block">
-      Endpoint <strong>/api/profile</strong> has insufficient protection.
-      <span
-        class="absolute left-0 -bottom-1 h-px w-0 bg-indigo-400"></span>
-    </span>
-</h2>
-<p>For proof of concept, my payload executes a Javascript &ldquo;<strong>confirm</strong>&rdquo; pop-up with a message &ldquo;<strong>intigriti</strong>&rdquo;.</p>
 <h2 id="filter-bypass-method" class="mt-8 mb-3 text-xl sm:text-2xl text-white">
     <span class="relative inline-block">
       Filter bypass method
@@ -600,10 +604,12 @@ Now it was a matter of figuring out an XSS payload that would bypass the shield 
         class="absolute left-0 -bottom-1 h-px w-0 bg-indigo-400"></span>
     </span>
 </h2>
+<p>For proof of concept, my payload executes a Javascript &ldquo;<strong>confirm</strong>&rdquo; pop-up with a message &ldquo;<strong>intigriti</strong>&rdquo;.</p>
 <p>To bypass existing protection against XSS (SCA Shield), I needed to obfuscate parentheses and quotes:</p>
 <ul>
-<li>Instead of using quotes I used backtick character &ldquo;`&rdquo;, which functions the same way as quotes do in Javascript.</li>
-<li>And for the parentheses bypass, I used decimal HTML entities &amp;#40; and &amp;#41; for closed and open respectively, usually entities need a &ldquo;;&rdquo; at the end but that character was rejected so I omitted it, browser likes to complete missing parts on it&rsquo;s own.</li>
+<li>Instead of using quotes I used backtick character &ldquo;`&rdquo;, which functions the same way as quotes do for strings in Javascript.</li>
+<li>And for the parentheses bypass, I used decimal HTML entities &amp;#40; and &amp;#41; for open and closed respectively, usually entities have a &ldquo;;&rdquo; at the end but that character was getting rejected so I omitted it and it still worked fine.</li>
+<li>The string <em>alert</em> was also blacklisted, an alternative pop up that was not rejected is <em>confirm</em>.</li>
 </ul>
 <p>Sending the payload in POST request json to update profile <strong>name</strong>:</p>
 <div class="my-7 rounded-sm border border-gray-800/80 bg-black/40 overflow-hidden">
@@ -682,11 +688,12 @@ Now it was a matter of figuring out an XSS payload that would bypass the shield 
   .codewrap pre { padding: 0 !important; overflow: visible !important; }
   .codewrap code { background: transparent !important; border: 0 !important; padding: 0 !important; font-size: 0.95rem; line-height: 1.55; color: rgba(229, 231, 235, 0.92); }
   .codewrap { background: rgba(0,0,0,0.20); }
-</style><p>In short, this makes an HTTP request to the attacker controlled server with a URL parameter containing the cookie.
-The cookie is base64 encoded for transport.
+</style><p>Using <strong>document.cookie</strong> and &ldquo;.&rdquo; character was rejected by the server, resulting in alternative payload.</p>
+<p>In short, this makes an HTTP request to the attacker controlled server with a URL parameter containing the cookie.</p>
+<p>The cookie is base64 encoded for transport.</p>
+<p><br>
 The attacker will see logged HTTP request in their server logs, with the session cookie.</p>
-<p>Using <strong>document.cookie</strong> and &ldquo;.&rdquo; character was rejected by the server, resulting in this different than usual payload.</p>
-<p>This solution is not the intended one, creators intended solution is XSS clobbering.</p>
+<p>This solution is not the intended one, I&rsquo;m curious to read other writeups once they come out.</p>
 <h2 id="side-note" class="mt-8 mb-3 text-xl sm:text-2xl text-white">
     <span class="relative inline-block">
       Side note
@@ -694,7 +701,8 @@ The attacker will see logged HTTP request in their server logs, with the session
         class="absolute left-0 -bottom-1 h-px w-0 bg-indigo-400"></span>
     </span>
 </h2>
-<p>I also randomly tried to set content length header to 0, just to see what happens on this same POST request.</p>
+<p>I also tried to set content length header to 0, just to see what happens on <code>/api/profile</code> POST request.</p>
+<p>Hoping it would confuse the parser so it would not reject my payloads, but instead I recieved a funky respose.</p>
 <div class="my-7 rounded-sm border border-gray-800/80 bg-black/40 overflow-hidden">
   <div class="flex items-center justify-between px-4 py-2 border-b border-gray-800/70 bg-[#070709]">
     <span class="text-xs uppercase tracking-widest text-gray-500">http</span>
@@ -738,8 +746,9 @@ The attacker will see logged HTTP request in their server logs, with the session
   .codewrap pre { padding: 0 !important; overflow: visible !important; }
   .codewrap code { background: transparent !important; border: 0 !important; padding: 0 !important; font-size: 0.95rem; line-height: 1.55; color: rgba(229, 231, 235, 0.92); }
   .codewrap { background: rgba(0,0,0,0.20); }
-</style><p>It seems that the server managed to concatenate two HTTP responses, I assume the first one which is the usual and second one from the internal requests, I&rsquo;m not sure.
-Maybe there is a descync or request sumuggling vulnerability in here, but I didn&rsquo;t wanna get derailed off the course.</p>
+</style><p>It seems that the server managed to concatenate two HTTP responses.</p>
+<p>I guess there is another internal request in this chain, not sure.</p>
+<p>Maybe there is a desync or request smuggling vulnerability in here, but I didn&rsquo;t wanna get derailed off the course.</p>
 
       </div>
     </div>
