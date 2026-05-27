@@ -19,7 +19,7 @@ And gradually as I learned more about the game engine, objects and components I 
 \
 It allowed me to make custom components exactly how I wanted to.
 
-Altough I had to learn about the replication system too which enables network synchronization accross the server and clients.
+Although I had to learn about the replication system too which enables network synchronization across the server and clients.
 
 ### The results
 \
@@ -29,7 +29,7 @@ Over the time, as I published some mods, couple of friends and members of the co
 I was more than happy to show them around the engine and its bit and bobs, with them eventually getting comfortable enough to make their own mods, which made me really happy to see them succeed.
 
 \
-In total, my mods have garnered over **74,848** downloads accross 16 mods at the time of writting this, and couple have even got featured in YouTube videos :O.
+In total, my mods have garnered over **74,848** downloads across 16 mods at the time of writing this, and couple have even got featured in YouTube videos :O.
 
 \
 Some of them are serious mods, for example equipment and clothing, arsenal boxes and systems for Game Masters & players, or just vanilla items reskins and others are silly mods like the jetpack and UFO.
