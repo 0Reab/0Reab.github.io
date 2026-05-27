@@ -2,19 +2,25 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>http://localhost:1313/personal/modding_games/</loc>
+    <lastmod>2026-05-27T16:03:09+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/personal/</loc>
+    <lastmod>2026-05-27T16:03:09+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/</loc>
+    <lastmod>2026-05-27T16:03:09+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/about/</loc>
+    <lastmod>2026-05-27T15:45:37+02:00</lastmod>
+  </url><url>
     <loc>http://localhost:1313/blog/</loc>
     <lastmod>2026-05-26T14:40:33+02:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/blog/htb_archetype/</loc>
     <lastmod>2026-05-26T14:40:33+02:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/</loc>
-    <lastmod>2026-05-26T14:40:33+02:00</lastmod>
-  </url><url>
     <loc>http://localhost:1313/personal/astrophotography/</loc>
-    <lastmod>2026-05-26T13:32:24+02:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/personal/</loc>
     <lastmod>2026-05-26T13:32:24+02:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/blog/xss_file_upload/</loc>
