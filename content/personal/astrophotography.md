@@ -10,8 +10,8 @@ title = 'Astrophotography'
 Nikon D3500 - full spectrum modified.
 
 If you are curious to mod your own, I've made a tutorial for it because at the time I did not have a tutorial to follow for this camera model.
-[![tutorial](https://img.youtube.com/vi/ovRh5zsCBIk/0.jpg)](https://www.youtube.com/watch?v=ovRh5zsCBIk)
-As you can tell by the picture my camera also has an old PC fan and small heat sink attached to it, to keep the sensor cooler while doing long exposures.
+
+As you can tell by the picture my camera also has an old PC fan and small heat sink attached to it, to keep the sensor cooler while doing long exposures.xd
 
 ## Software
 
@@ -32,7 +32,7 @@ Camera and telescope mount:
 
 -ASCOM Platform *(mount driver)*
 
--Nina *(palte-solving and GoTo)*
+-Nina *(plate-solving and GoTo)*
 
 ## Cygnus Butterfly nebula
 *IC 1318 - narrowband (4h10min)*

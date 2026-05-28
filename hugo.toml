@@ -5,6 +5,10 @@ theme = "enervoid"
 
 [menus]
   [[menus.main]]
+    name = 'About me'
+    pageRef = '/'
+    weight = 10
+  [[menus.main]]
     name = 'Blog'
     pageRef = '/blog'
     weight = 10
@@ -26,9 +30,22 @@ theme = "enervoid"
   [[params.socials]]
       link = "https://github.com/0Reab"
       icon = "devicon-github-original"
-   [[params.socials]]
+  [[params.socials]]
       link = "https://www.linkedin.com/in/mihajlo-francic-3650682bb"
       icon = "devicon-linkedin-plain"
+  [[params.socials]]
+      link = "https://www.instagram.com/astrosamihajlom/"
+      icon = "si-instagram"
+      color = "dbdbdb"
+  [[params.socials]]
+      #name = "OpenBugBounty"
+      link = "https://app.intigriti.com/researcher/profile/reab"
+      icon = "si-intigriti"
+      color = "ffffff"
+  [[params.socials]]
+      link = "https://www.openbugbounty.org/researchers/reab/"
+      icon = "si-openbugbounty"
+      color = "dbdbdb"
 
 [markup]
   [markup.goldmark]
