@@ -49,7 +49,7 @@ And that JSON manifest is in the b64 string in this.
 
 ### Solution
 
-*Flag*: `INTIGRITI{019f8700-4613-74fb-923e-781903e4bee9}`
+*Flag*: `INTIGRITI{[redacted]}`
 *CVSS*: `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N`
 ## Overview
 I am targeting **security-notes** report, which I don't have access to.
