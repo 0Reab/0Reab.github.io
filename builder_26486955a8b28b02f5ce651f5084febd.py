@@ -16,6 +16,14 @@ def insert_content(base, content):
         flags=re.DOTALL
     )
 
+def insert_title(html, title):
+    return re.sub(
+        r'<title>.*?</title>',
+        f'<title>{title}</title>',
+        html,
+        flags=re.DOTALL
+    )
+
 def filename_to_title(filename):
     name = Path(filename).stem
     return name.replace('_', ' ').replace('-', ' ').title()
@@ -30,6 +38,8 @@ html_files = {}
 for relative_path, md_text in md_files.items():
     html_output = markdown2.markdown(md_text, extras=["fenced-code-blocks", "highlightjs-lang", "code-friendly"])
     full_html = insert_content(base_html, html_output)
+    title = filename_to_title(relative_path)
+    full_html = insert_title(full_html, title)
     out_path = Path(relative_path).with_suffix('.html')
     parts = list(out_path.parts)
     parts[0] = 'html'
@@ -82,7 +92,8 @@ for subdir, files in subdirs.items():
     }}
 </style>'''
     full_index = insert_content(base_html, table_html)
- 
+    full_index = insert_title(full_index, category)
+
     index_path = Path('html') / subdir / 'index.html'
     index_path.parent.mkdir(parents=True, exist_ok=True)
     with open(index_path, 'w', encoding='utf-8') as f:
