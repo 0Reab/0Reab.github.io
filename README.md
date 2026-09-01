@@ -1,1 +1,2 @@
-# Blog
+# Blog - visit the site
+
