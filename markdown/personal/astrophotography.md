@@ -4,9 +4,9 @@
 ## Camera
 Nikon D3500 - full spectrum modified.
 
-If you are curious to mod your own, I've made a tutorial for it because at the time I did not have a tutorial to follow for this camera model.
+If you are curious to mod your own, I've made a [tutorial](https://www.youtube.com/watch?v=ovRh5zsCBIk&pp=0gcJCRoMAYcqIYzv) for it because at the time I did not have a tutorial to follow for this camera model.
 
-As you can tell by the picture my camera also has an old PC fan and small heat sink attached to it, to keep the sensor cooler while doing long exposures.xd
+As you can tell by the picture my camera also has an old PC fan and small heat sink attached to it, to keep the sensor cooler while doing long exposures.
 
 ---
 ## Software

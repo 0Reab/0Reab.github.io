@@ -1,4 +1,5 @@
-## Task
+# Intigriti CTF 0526
+### Task
 - Leverage XSS vulnerability on the challenge page.
 - Should not be self XSS or related MITM attacks.
 
