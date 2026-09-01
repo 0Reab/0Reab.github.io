@@ -22,7 +22,7 @@ Cybersecurity enthusiast with 2 years of experience in IT, programming and offen
 
 **Security & Tools:** Caido, Burp Suite, Kali Linux, Debian, Windows, Git, Vim
 
-**Languages:** Python, Bash, PowerShell, SQL
+**Languages:** Python, Bash & familiar with JavaScript, PowerShell, SQL
 
 ---
 
@@ -42,6 +42,7 @@ Cybersecurity enthusiast with 2 years of experience in IT, programming and offen
 
 • [Intigriti](https://app.intigriti.com/researcher/profile/reab)
 • [OpenBugBounty](https://www.openbugbounty.org/researchers/reab/)
+• [TryHackMe](https://tryhackme.com/p/KernelCrusader)
 • [GitHub](https://github.com/0Reab)
 
 ---
@@ -49,7 +50,7 @@ Cybersecurity enthusiast with 2 years of experience in IT, programming and offen
 ## Interests
 
 • [Astrophotography](html/personal/astrophotography.html)
-• [Game modding](html/personal/game_modding.html)
+• [Game modding](html/personal/modding_games.html)
 • [Chess](https://www.chess.com/member/miajlo)
 
 ---

