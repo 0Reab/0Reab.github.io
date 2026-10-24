@@ -49,8 +49,8 @@ Cybersecurity enthusiast with 2 years of experience in IT, programming and offen
 
 ## Interests
 
-• [Astrophotography](html/personal/astrophotography.html)
-• [Game modding](html/personal/modding_games.html)
+• [Astrophotography](/html/personal/astrophotography.html)
+• [Game modding](/html/personal/modding_games.html)
 • [Chess](https://www.chess.com/member/miajlo)
 
 ---

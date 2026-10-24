@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal</title>
     <link href="/static/favicon.ico" rel="icon"/>
-    <link href="/static/prism.css" rel="stylesheet"/>
-    <link href="/static/style.css" rel="stylesheet"/>
+    <link href="/static/prism.css?v=10" rel="stylesheet"/>
+    <link href="/static/style.css?v=10" rel="stylesheet"/>
 </head>
 <body>
 
@@ -25,6 +25,8 @@
 
 <!-- content start -->
 <h1 class="category-title">Personal</h1>
+<input class="search" type="search" placeholder="/ filter..." autocomplete="off">
+<p class="no-match">no matches</p>
 <table class="index-table">
     <tbody>
         <tr>
@@ -37,7 +39,7 @@
 </table>
 <style>
     .index-table { width: 100%; border-collapse: collapse;}
-    .index-table tr { border-bottom: 1px solid #3e5749; transition: background 0.2s ease; }
+    .index-table tr { border-bottom: 1px solid #1dc56e; transition: background 0.2s ease; }
     .index-table tr:hover {background-color: rgba(255,255,255,0.03);}
     .index-link:hover {color: yellowgreen;}
     .index-link {
@@ -67,7 +69,7 @@
     </div>
 </footer>
 
-<script src="/js/prism.js"></script>
-<script src="/js/main.js"></script>
+<script src="/js/prism.js?v=10"></script>
+<script src="/js/main.js?v=10"></script>
 </body>
 </html>
