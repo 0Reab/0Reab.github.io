@@ -10,5 +10,5 @@ div.code-toolbar{position:relative}div.code-toolbar>.toolbar{position:absolute;z
 .token.url{color:#66d9ef;text-decoration:none}
 .token.status-number{font-weight:700}
 .token.request-line .method,.token.status-line .property{font-weight:700}
-pre[class*=language-]{background:#0b130f;border:1px solid #0dff82;border-radius:6px}
+pre[class*=language-]{background:#0b130f;border:1px solid #1dc56e;border-radius:6px}
 :not(pre)>code[class*=language-]{background:#1e2b23;padding:.15em .4em;border-radius:3px;white-space:normal}
