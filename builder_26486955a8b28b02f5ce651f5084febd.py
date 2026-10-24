@@ -49,7 +49,7 @@ for out_path, content in html_files.items():
     p = Path(out_path)
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, 'w', encoding='utf-8') as f:
-        f.write(content)
+        f.write(content.rstrip("\n") + "\n")
     print(f"Written: {out_path}")
 
 subdirs = {}
@@ -72,14 +72,18 @@ for subdir, files in subdirs.items():
             <td><a class="index-link" href="{filename}">{title}</a></td>
         </tr>\n'''
  
+    search_html = ''
+    if subdir.lower() in ('blog', 'personal'):
+        search_html = ('<input class="search" type="search" placeholder="/ filter..." '
+                       'autocomplete="off">\n<p class="no-match">no matches</p>\n')
     table_html = f'''<h1 class="category-title">{category}</h1>
-<table class="index-table">
+{search_html}<table class="index-table">
     <tbody>
 {rows}    </tbody>
 </table>
 <style>
     .index-table {{ width: 100%; border-collapse: collapse;}}
-    .index-table tr {{ border-bottom: 1px solid #3e5749; transition: background 0.2s ease; }}
+    .index-table tr {{ border-bottom: 1px solid #0dff82; transition: background 0.2s ease; }}
     .index-table tr:hover {{background-color: rgba(255,255,255,0.03);}}
     .index-link:hover {{color: yellowgreen;}}
     .index-link {{
@@ -97,7 +101,7 @@ for subdir, files in subdirs.items():
     index_path = Path('html') / subdir / 'index.html'
     index_path.parent.mkdir(parents=True, exist_ok=True)
     with open(index_path, 'w', encoding='utf-8') as f:
-        f.write(full_index)
+        f.write(full_index.rstrip("\n") + "\n")
     print(f"Written index: {index_path}")
 
 shutil.copy("html/about.html", 'index.html')
