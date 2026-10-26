@@ -51,6 +51,17 @@ if (search) {
 
 /* matrix rain background (+ rain toggle & scroll-to-top corner buttons) */
 function initRain() {
+  if (window.__rainReady) return;
+  if (!document.body) {
+    document.addEventListener("DOMContentLoaded", initRain, { once: true });
+    return;
+  }
+
+  const staleCanvas = document.getElementById("bg-rain");
+  if (staleCanvas) staleCanvas.remove();
+  document.querySelectorAll(".corner-btns").forEach((el) => el.remove());
+  document.querySelectorAll(".rain-btn").forEach((el) => el.remove());
+
   const canvas = document.createElement("canvas");
   canvas.id = "bg-rain";
   canvas.setAttribute("aria-hidden", "true");
@@ -134,13 +145,19 @@ function initRain() {
     if (!document.hidden && ts - last > STEP) { paint(); last = ts; }
     raf = requestAnimationFrame(loop);
   }
+  const startLoop = () => {
+    if (!running) return;
+    if (raf) cancelAnimationFrame(raf);
+    last = 0;
+    raf = requestAnimationFrame(loop);
+  };
   const setRain = (on) => {
     running = on;
     rainBtn.setAttribute("aria-pressed", String(running));
     rainBtn.classList.toggle("is-paused", !running);
     try { localStorage.setItem("reab-rain", on ? "on" : "off"); } catch (e) {}
     if (raf) { cancelAnimationFrame(raf); raf = 0; }
-    if (on) { last = 0; raf = requestAnimationFrame(loop); }
+    if (on) startLoop();
   };
 
   /* rain toggle + scroll-to-top corner buttons */
@@ -168,19 +185,48 @@ function initRain() {
     resize();
     rainBtn.setAttribute("aria-pressed", String(running));
     rainBtn.classList.toggle("is-paused", !running);
-    if (running) { last = 0; raf = requestAnimationFrame(loop); }
+    if (running) startLoop();
   } else {
     running = false;
     rainBtn.classList.add("is-paused");
     rainBtn.disabled = true;
   }
   onScroll();
+  window.__rainReady = true;
+  window.__rain = {
+    resize,
+    start: startLoop,
+    running: () => running,
+  };
 }
 
-try { initRain(); } catch (e) { console.warn("rain background failed to initialize:", e); }
-// safety net: if parse-time init ever fails on a page, retry once after full load
-window.addEventListener("load", () => {
-  if (!document.getElementById("bg-rain")) {
-    try { initRain(); } catch (e) { console.warn("rain retry failed:", e); }
+function bootRain() {
+  if (window.__rainReady) return;
+  try {
+    initRain();
+  } catch (e) {
+    console.warn("rain background failed to initialize:", e);
   }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootRain, { once: true });
+} else {
+  bootRain();
+}
+window.addEventListener("load", bootRain);
+
+// bfcache / tab switch: keep the painted background and restart the loop if it was on
+window.addEventListener("pageshow", () => {
+  if (!window.__rainReady) {
+    bootRain();
+    return;
+  }
+  if (window.__rain) {
+    window.__rain.resize();
+    window.__rain.start();
+  }
+});
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && window.__rain) window.__rain.start();
 });
