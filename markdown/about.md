@@ -12,6 +12,8 @@ Cybersecurity enthusiast with 2 years of experience in IT, programming and offen
 ---
 
 ## Skills
+• Explore my [knowledge graph](/html/knowledge_graph.html)
+
 • Web application pentesting
 
 • Programming and shell scripting

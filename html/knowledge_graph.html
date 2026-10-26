@@ -1,0 +1,74 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge graph</title>
+    <link href="/static/favicon.ico" rel="icon"/>
+    <link href="/static/prism.css?v=13" rel="stylesheet"/>
+    <link href="/static/style.css?v=20" rel="stylesheet"/>
+</head>
+<body>
+
+<header>
+    <a href="/html/about.html"><img class="profile-pic" src="https://avatars.githubusercontent.com/u/122540000?v=4" alt="profile-pic"></a>
+    <a class="header" href="/html/about.html"><h1>Reab:~$<span class="cursor">▋</span></h1></a>
+    <div class="navs">
+        <h1><a class="header" href="/html/about.html">About</a></h1>
+        <h1><a class="header" href="/html/blog/index.html">Blog</a></h1>
+        <h1><a class="header" href="/html/personal/index.html">Personal</a></h1>
+        <h1><a class="header" href="/html/projects/index.html">Projects</a></h1>
+    </div>
+</header>
+
+<div class="global-content">
+<div class="inner-content">
+
+<!-- content start -->
+<h1>Knowledge graph</h1>
+
+<div class="kg-stage">
+<div class="kg-controls">
+    <p class="kg-intro">My Obsidian notes in a form of a node graph, showcasing the topics I studied over last 3 years.</p>
+    <span class="kg-spacer"></span>
+    <span class="kg-zoom-group">
+        <button id="kg-zoom-out" class="corner-btn" type="button" aria-label="Zoom out">&minus;</button>
+        <button id="kg-zoom-in" class="corner-btn" type="button" aria-label="Zoom in">+</button>
+        <button id="kg-fit" class="corner-btn" type="button">fit</button>
+        <button id="kg-fullscreen" class="corner-btn" type="button">fullscreen</button>
+    </span>
+</div>
+
+<div id="kg-viewport" class="kg-viewport">
+    <canvas id="kg-chart"></canvas>
+    <div id="kg-tip" class="kg-tip"></div>
+</div>
+
+<p class="kg-meta" id="kg-meta"></p>
+<div id="kg-legend" class="kg-legend"></div>
+</div>
+
+<script src="/js/knowledge_data.js?v=14"></script>
+<script src="/js/knowledge_graph.js?v=25"></script>
+
+<!-- content end -->
+
+</div></div>
+
+<footer>
+    <div class="socials">
+        <p class="faint">©2026 Author: Mihajlo Frančić<br>
+        <a class="email" href="mailto:mihajlofrancic@gmail.com">mihajlofrancic@gmail.com</a></p>
+    </div>
+    <div class="socials">
+        </a><a href=https://github.com/0Reab><img class="socials" src=https://cdn.simpleicons.org/github/dbdbdb>
+        </a><a href=https://www.linkedin.com/in/mihajlo-francic-3650682bb><img class="socials" src=https://img.icons8.com/?size=100&id=8808&format=png&color=FDFDFD class=inline style=width:17px;height:17px;>
+        </a><a href=https://www.instagram.com/astrosamihajlom/><img class="socials" src=https://cdn.simpleicons.org/instagram/dbdbdb class=inline>
+        </a><a href=https://app.intigriti.com/researcher/profile/reab><img class="socials" src=https://cdn.simpleicons.org/intigriti/ffffff class=inline>
+        </a><a href=https://www.openbugbounty.org/researchers/reab/><img class="socials" src=https://cdn.simpleicons.org/openbugbounty/dbdbdb class=inline>
+    </div>
+</footer>
+
+<script src="/js/prism.js?v=13"></script>
+<script src="/js/main.js?v=14"></script>
+</body>
+</html>
